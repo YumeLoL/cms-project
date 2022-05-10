@@ -1,32 +1,44 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import router from "next/router";
+import axios from "axios";
+import { AES } from "crypto-js";
 import "antd/dist/antd.css";
-import styled from "styled-components";
 import {
   Button,
   Checkbox,
   Col,
   Form,
   Input,
+  message,
   Radio,
   Row,
   Typography,
 } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { LoginValue } from "../lib/login";
+import Link from "next/link";
 
 const { Title } = Typography;
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  place-content: center;
-`;
+const Login: React.FC = () => {
+  const onFinish = async ({ password, role, ...rest}:LoginValue) => {
+    // login request
+    try {
+      const res = await axios.post("http://cms.chtoma.com/api/login", {
+        password:AES.encrypt(password, "cms").toString(),
+        ...rest
+      });
 
-const Home: NextPage = () => {
-  const onFinish = (e) => {
-    console.log(e)
-  }
+      localStorage.setItem("cms-user", JSON.stringify(res.data.data));
+      // redirect to the corresponding dashboard page
+      if (res) {
+        router.push(`/dashboard/${role}`);
+      }
+    } catch(err) {
+        message.error( "check email and password")
+    }
+  };
 
 
   return (
@@ -37,13 +49,21 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Row align="middle" justify="center">
-        <Col span={12}>
-          <Container>
-            <Title level={1} style={{placeSelf:"center", marginBottom:"50px"}}>Course Management Assistant</Title>
+      <Row align="middle" justify="center" style={{ height: "100vh" }}>
+        <Col xs={20} sm={18} md={16} xl={8}>
+          <div>
+            <Title
+              level={1}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: "50px",
+              }}
+            >
+              Course Management Assistant
+            </Title>
             <Form
-              name="normal_login"
-              className="login-form"
+              name="login"
               size="large"
               initialValues={{ remember: true, role: "student" }}
               onFinish={onFinish}
@@ -58,10 +78,7 @@ const Home: NextPage = () => {
 
               <Form.Item
                 name="email"
-                rules={[
-                  { required: true, message: '"email" is required' },
-                  { type: "email" },
-                ]}
+                rules={[{ required: true, type: "email" }]}
               >
                 <Input
                   prefix={<UserOutlined className="site-form-item-icon" />}
@@ -71,10 +88,7 @@ const Home: NextPage = () => {
 
               <Form.Item
                 name="password"
-                rules={[
-                  { required: true, message: '"password" is required' },
-                  { min: 4, max: 16 },
-                ]}
+                rules={[{ required: true, min: 4, max: 16 }]}
               >
                 <Input
                   prefix={<LockOutlined className="site-form-item-icon" />}
@@ -103,11 +117,17 @@ const Home: NextPage = () => {
                 </Button>
               </Form.Item>
             </Form>
-          </Container>
+            <div>
+              No account?
+              <Link href="/">
+                <a> Sign up </a>
+              </Link>
+            </div>
+          </div>
         </Col>
       </Row>
     </div>
   );
 };
 
-export default Home;
+export default Login;
