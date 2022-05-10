@@ -1,4 +1,3 @@
-import type { NextPage } from "next";
 import Head from "next/head";
 import router from "next/router";
 import axios from "axios";
@@ -22,21 +21,21 @@ import Link from "next/link";
 const { Title } = Typography;
 
 const Login: React.FC = () => {
-  const onFinish = async ({ password, role, ...rest}:LoginValue) => {
+  const onFinish = async ({ password, role, email}:LoginValue) => {
     // login request
     try {
       const res = await axios.post("http://cms.chtoma.com/api/login", {
         password:AES.encrypt(password, "cms").toString(),
-        ...rest
+        email,
+        role
       });
 
       localStorage.setItem("cms-user", JSON.stringify(res.data.data));
-      // redirect to the corresponding dashboard page
       if (res) {
         router.push(`/dashboard/${role}`);
       }
-    } catch(err) {
-        message.error( "check email and password")
+    } catch (err: any) {
+      message.error( err.response.data.msg )
     }
   };
 
