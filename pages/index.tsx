@@ -17,17 +17,18 @@ import {
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { LoginValue } from "../lib/login";
 import Link from "next/link";
+import { BaseURL } from "../service/api";
 
 const { Title } = Typography;
 
 const Login: React.FC = () => {
-  const onFinish = async ({ password, role, email}:LoginValue) => {
+  const onFinish = async ({ password, role, email }: LoginValue) => {
     // login request
     try {
-      const res = await axios.post("http://cms.chtoma.com/api/login", {
-        password:AES.encrypt(password, "cms").toString(),
+      const res = await axios.post(`${BaseURL}/login`, {
+        password: AES.encrypt(password, "cms").toString(),
         email,
-        role
+        role,
       });
 
       localStorage.setItem("cms-user", JSON.stringify(res.data.data));
@@ -35,10 +36,9 @@ const Login: React.FC = () => {
         router.push(`/dashboard/${role}`);
       }
     } catch (err: any) {
-      message.error( err.response.data.msg )
+      message.error(err.response.data.msg);
     }
   };
-
 
   return (
     <div>
@@ -61,6 +61,7 @@ const Login: React.FC = () => {
             >
               Course Management Assistant
             </Title>
+
             <Form
               name="login"
               size="large"
@@ -95,6 +96,7 @@ const Login: React.FC = () => {
                   placeholder="Please input password"
                 />
               </Form.Item>
+
               <Form.Item>
                 <Form.Item name="remember" valuePropName="checked" noStyle>
                   <Checkbox>Remember me</Checkbox>
@@ -116,6 +118,7 @@ const Login: React.FC = () => {
                 </Button>
               </Form.Item>
             </Form>
+
             <div>
               No account?
               <Link href="/">

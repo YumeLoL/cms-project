@@ -1,0 +1,1 @@
+export const BaseURL = "http://cms.chtoma.com/api"

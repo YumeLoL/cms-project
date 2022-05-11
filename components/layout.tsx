@@ -1,6 +1,6 @@
 import Head from "next/head";
-import React, { ReactNode, useState } from "react";
-import { Button, Layout, Menu, Tabs } from "antd";
+import React, { useState } from "react";
+import { Button, Layout, Menu, message, Popover } from "antd";
 import "antd/dist/antd.css";
 import type { MenuProps } from "antd";
 import Link from "next/link";
@@ -13,6 +13,9 @@ import {
 } from "@ant-design/icons";
 import logo from "../public/logo.png";
 import styled from "styled-components";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import Router from "next/router";
+import { BaseURL } from "../service/api";
 
 const { Header, Sider, Content } = Layout;
 
@@ -21,7 +24,7 @@ const ImageContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index:10;
+  z-index: 10;
 `;
 const StyledHeader = styled(Header)`
   padding: 0 50px;
@@ -33,7 +36,7 @@ const StyledHeader = styled(Header)`
   top: 0;
   z-index: 9;
 `;
-const ButtonContainer = styled.div`
+const LogoutButton = styled(Popover)`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,41 +51,61 @@ const StyledContent = styled(Content)`
 type MenuItem = Required<MenuProps>["items"][number];
 
 export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
-  const [collapse, setCollapse] = useState(false);
-  const toggle = () => {
-    setCollapse(!collapse);
+  const [collapsed, setCollapsed] = useState(false);
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
+  };
+
+  const logout = async () => {
+    const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
+
+    try {
+      const res: AxiosResponse = await axios.post(
+        `${BaseURL}/logout`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (res) {
+        localStorage.removeItem("cms-user");
+        Router.push("/");
+      }
+    } catch (err: any) {
+      message.error(err.response.data.msg);
+    }
   };
 
   const getItem = (
-    label: string,
-    key: string,
+    label: React.ReactNode,
+    key: React.Key,
     icon?: React.ReactNode,
     children?: MenuItem[],
     type?: "group"
-  ) => {
-    return {
+  ): MenuItem =>
+    ({
       key,
       icon,
       children,
       label,
       type,
-    };
-  };
+    } as MenuItem);
 
+  // menu items
   const items = [
-    getItem("overview", "1", <AppstoreOutlined />),
-    getItem("student", "sub1", <AppstoreOutlined />, [
-      getItem("student list", "2"),
+    getItem("Overview", "1", <AppstoreOutlined />),
+    getItem("Student", "sub1", <AppstoreOutlined />, [
+      getItem("Student List", "2"),
     ]),
-    getItem("teacher", "sub2", <AppstoreOutlined />, [
-      getItem("teacher list", "3"),
+    getItem("Teacher", "sub2", <AppstoreOutlined />, [
+      getItem("Teacher List", "3"),
     ]),
-    getItem("course", "sub3", <AppstoreOutlined />, [
-      getItem("all course", "4"),
-      getItem("add course", "5"),
-      getItem("edit course", "6"),
+    getItem("Course", "sub3", <AppstoreOutlined />, [
+      getItem("All Course", "4"),
+      getItem("Add Course", "5"),
+      getItem("Edit Course", "6"),
     ]),
-    getItem("message", "7", <AppstoreOutlined />),
+    getItem("Message", "7", <AppstoreOutlined />),
   ];
 
   return (
@@ -96,42 +119,52 @@ export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
         <Sider
           trigger={null}
           collapsible
-          collapsed={collapse}
+          collapsed={collapsed}
           width={222}
           defaultCollapsed={true}
           collapsedWidth={100}
         >
-            <ImageContainer>
-              <Link href="/" passHref>
-                <span style={{ cursor: "pointer" }}>
-                  <Image src={logo} alt="logo" width="70" height="70" />
-                </span>
-              </Link>
-            </ImageContainer>
+          <ImageContainer>
+            <Link href="/" passHref>
+              <span style={{ cursor: "pointer" }}>
+                <Image src={logo} alt="logo" width="70" height="70" />
+              </span>
+            </Link>
+          </ImageContainer>
+
           <Menu
             theme="dark"
             mode="inline"
-            inlineCollapsed={collapse}
-            style={{ position: "sticky", top: "80px" }}
+            inlineCollapsed={collapsed}
+            style={{ position: "sticky", top: "80px", fontSize: "16px" }}
             items={items}
-          >
-            
-          </Menu>
+          />
         </Sider>
 
         <Layout className="site-layout">
           <StyledHeader className="site-layout-background">
-            {React.createElement(
-              collapse ? MenuUnfoldOutlined : MenuFoldOutlined,
-              {
-                className: "trigger",
-                style: { fontSize: "30px", color: "white" },
-                onClick: toggle,
+            <Button
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={toggleCollapsed}
+              size="large"
+              type="text"
+              style={{
+                color: "white",
+                border: "none",
+                backgroundColor: "transparent",
+              }}
+            />
+
+            <LogoutButton
+              content={
+                <Button type="link" onClick={logout}>
+                  Logout
+                </Button>
               }
-            )}
-            <ButtonContainer>
+              trigger="hover"
+            >
               <Button icon={<UserOutlined />} shape="circle" />
-            </ButtonContainer>
+            </LogoutButton>
           </StyledHeader>
 
           <StyledContent className="site-layout-background ">
