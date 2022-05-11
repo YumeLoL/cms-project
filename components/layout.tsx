@@ -1,5 +1,5 @@
 import Head from "next/head";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Layout, Menu, message, Popover } from "antd";
 import "antd/dist/antd.css";
 import type { MenuProps } from "antd";
@@ -9,11 +9,19 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
-  AppstoreOutlined,
+  DashboardOutlined,
+  SolutionOutlined,
+  TeamOutlined,
+  DeploymentUnitOutlined,
+  ReadOutlined,
+  ProjectOutlined,
+  FileAddOutlined,
+  EditOutlined,
+  MessageOutlined,
 } from "@ant-design/icons";
 import logo from "../public/logo.png";
 import styled from "styled-components";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import Router from "next/router";
 import { BaseURL } from "../service/api";
 
@@ -51,31 +59,6 @@ const StyledContent = styled(Content)`
 type MenuItem = Required<MenuProps>["items"][number];
 
 export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
-  const [collapsed, setCollapsed] = useState(false);
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
-  };
-
-  const logout = async () => {
-    const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
-
-    try {
-      const res: AxiosResponse = await axios.post(
-        `${BaseURL}/logout`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (res) {
-        localStorage.removeItem("cms-user");
-        Router.push("/");
-      }
-    } catch (err: any) {
-      message.error(err.response.data.msg);
-    }
-  };
-
   const getItem = (
     label: React.ReactNode,
     key: React.Key,
@@ -93,20 +76,81 @@ export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
 
   // menu items
   const items = [
-    getItem("Overview", "1", <AppstoreOutlined />),
-    getItem("Student", "sub1", <AppstoreOutlined />, [
-      getItem("Student List", "2"),
+    getItem(
+      <Link href="/dashboard/manager">Overview</Link>,
+      "manager",
+      <DashboardOutlined />
+    ),
+    getItem("Student", "sub1", <SolutionOutlined />, [
+      getItem(
+        <Link href="/dashboard/manager/students">Student List</Link>,
+        "students",
+        <TeamOutlined />
+      ),
     ]),
-    getItem("Teacher", "sub2", <AppstoreOutlined />, [
-      getItem("Teacher List", "3"),
+    getItem("Teacher", "sub2", <DeploymentUnitOutlined />, [
+      getItem(
+        <Link href="/dashboard/manager/teachers">Teacher List</Link>,
+        "teachers",
+        <TeamOutlined />
+      ),
     ]),
-    getItem("Course", "sub3", <AppstoreOutlined />, [
-      getItem("All Course", "4"),
-      getItem("Add Course", "5"),
-      getItem("Edit Course", "6"),
+    getItem("Course", "sub3", <ReadOutlined />, [
+      getItem(
+        <Link href="/dashboard/manager/courses">All Course</Link>,
+        "courses",
+        <ProjectOutlined />
+      ),
+      getItem(
+        <Link href="/dashboard/manager/courses/add-course">Add Course</Link>,
+        "add-course",
+        <FileAddOutlined />
+      ),
+      getItem(
+        <Link href="/dashboard/manager/courses/edit-course">Edit Course</Link>,
+        "edit-course",
+        <EditOutlined />
+      ),
     ]),
-    getItem("Message", "7", <AppstoreOutlined />),
+    getItem(
+      <Link href="/dashboard/manager/message">Message</Link>,
+      "message",
+      <MessageOutlined />
+    ),
   ];
+
+  const [collapsed, setCollapsed] = useState(false);
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
+  };
+
+  // to get current selected keys of menu & subMenu
+  const currentPath = Router.pathname.split("/");
+  const currentMenuKey = currentPath.pop() as string;
+
+  const [path, setPath] = useState([""]);
+  // console.log("path:", path);
+  // console.log("items:", items);
+
+
+  const logout = async () => {
+    const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
+    try {
+      const res: AxiosResponse = await axios.post(
+        `${BaseURL}/logout`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (res) {
+        localStorage.removeItem("cms-user");
+        Router.push("/");
+      }
+    } catch (err: any) {
+      message.error(err.response.data.msg);
+    }
+  };
 
   return (
     <>
@@ -138,11 +182,14 @@ export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
             inlineCollapsed={collapsed}
             style={{ position: "sticky", top: "80px", fontSize: "16px" }}
             items={items}
+            selectedKeys={[currentMenuKey]}
+            // openKeys={[]}
           />
         </Sider>
 
         <Layout className="site-layout">
           <StyledHeader className="site-layout-background">
+            {/* collapsedButton */}
             <Button
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={toggleCollapsed}
