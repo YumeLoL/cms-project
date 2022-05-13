@@ -1,5 +1,5 @@
 import Head from "next/head";
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import { Button, Layout, Menu, message, Popover } from "antd";
 import "antd/dist/antd.css";
 import type { MenuProps } from "antd";
@@ -22,7 +22,7 @@ import {
 import logo from "../public/logo.png";
 import styled from "styled-components";
 import axios, { AxiosResponse } from "axios";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { BaseURL } from "../service/api";
 
 const { Header, Sider, Content } = Layout;
@@ -33,6 +33,8 @@ const ImageContainer = styled.div`
   align-items: center;
   justify-content: center;
   z-index: 10;
+  position: sticky;
+  top: 0;
 `;
 const StyledHeader = styled(Header)`
   padding: 0 50px;
@@ -119,13 +121,14 @@ export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
     ),
   ];
 
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
 
   // to get current selected keys of menu & subMenu
-  const currentPath = Router.pathname.split("/");
+  const currentPath = router.pathname.split("/");
   const currentMenuKey = currentPath.pop() as string;
 
   const [path, setPath] = useState([""]);
@@ -145,7 +148,7 @@ export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
       );
       if (res) {
         localStorage.removeItem("cms-user");
-        Router.push("/");
+        router.push("/");
       }
     } catch (err: any) {
       message.error(err.response.data.msg);
@@ -184,7 +187,9 @@ export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
             items={items}
             selectedKeys={[currentMenuKey]}
             // openKeys={[]}
-          />
+          >
+            
+          </Menu>
         </Sider>
 
         <Layout className="site-layout">
