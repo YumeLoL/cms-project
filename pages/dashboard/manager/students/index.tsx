@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../../../../components/layout";
-import { Button, Input, message, Table } from "antd";
+import { Button, Input, message, Popconfirm, Space, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios, { AxiosResponse } from "axios";
 import { BaseURL } from "../../../../service/api";
 import { Courses } from "../../../../lib/course";
 import { formatDistanceToNow } from "date-fns";
+import AddEditStudent from "../../../../components/addEditStudent";
 
 const { Search } = Input;
 
@@ -17,21 +18,22 @@ export default function Students() {
     pageSize: 10,
   });
   const [total, setTotal] = useState(0);
-  const [value, setValue] = useState("")
+  const [value, setValue] = useState("");
+  const [refresh, setRefresh] = useState(true);
 
   useEffect(() => {
     getStudents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paginator.page, paginator.pageSize, value]);
+  }, [paginator.page, paginator.pageSize, value, refresh]);
 
   // to get student data
   const getStudents = async () => {
     setLoading(true);
     const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
-    
+
     let path = `page=${paginator.page}&limit=${paginator.pageSize}`;
-    if(value){
-       path = `query=${value}&page=${paginator.page}&limit=${paginator.pageSize}`;
+    if (value) {
+      path = `query=${value}&page=${paginator.page}&limit=${paginator.pageSize}`;
     }
 
     try {
@@ -51,6 +53,25 @@ export default function Students() {
     }
   };
 
+  // to delete a student data
+  const handleDelete = async (id: number) =>{
+    setLoading(true);
+    const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
+
+    try {
+      const res: AxiosResponse = await axios.delete(
+        `${BaseURL}/students/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      
+      setRefresh(!refresh)
+      setLoading(false);
+    } catch (err: any) {
+      message.error(err.response.data.msg);
+    }
+  }
 
   const columns: ColumnsType = [
     {
@@ -90,6 +111,14 @@ export default function Students() {
     {
       title: "Action",
       key: "action",
+      render: (record, _, _1) => (
+        <Space size="middle">
+          <a>xxx</a>
+          <Popconfirm title="Are you sure？" okText="Yes" cancelText="No" onConfirm={()=> handleDelete(record.id)} >
+            <a href="#" >Delete</a>
+          </Popconfirm>
+        </Space>
+      ),
     },
   ];
 
@@ -103,14 +132,14 @@ export default function Students() {
             margin: "20px 10px ",
           }}
         >
-          <Button>xx</Button>
+          <AddEditStudent/>
 
           {/* filter by student name */}
           <Search
             placeholder="input search text"
             size="middle"
             style={{ width: "30%" }}
-            onChange={(e)=> setValue(e.target.value)}
+            onChange={(e) => setValue(e.target.value)}
           />
         </div>
         <Table<any>
