@@ -38,7 +38,7 @@ export default function Students() {
 
     try {
       const res: AxiosResponse = await axios.get(
-        `${BaseURL}/students?${path}`,
+        `${BaseURL}/students?query=${value}&page=${paginator.page}&limit=${paginator.pageSize}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -54,7 +54,7 @@ export default function Students() {
   };
 
   // to delete a student data
-  const handleDelete = async (id: number) =>{
+  const handleDelete = async (id: number) => {
     setLoading(true);
     const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
 
@@ -65,13 +65,13 @@ export default function Students() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      
-      setRefresh(!refresh)
+
+      setRefresh(!refresh);
       setLoading(false);
     } catch (err: any) {
       message.error(err.response.data.msg);
     }
-  }
+  };
 
   const columns: ColumnsType = [
     {
@@ -114,8 +114,13 @@ export default function Students() {
       render: (record, _, _1) => (
         <Space size="middle">
           <a>xxx</a>
-          <Popconfirm title="Are you sure？" okText="Yes" cancelText="No" onConfirm={()=> handleDelete(record.id)} >
-            <a href="#" >Delete</a>
+          <Popconfirm
+            title="Are you sure？"
+            okText="Yes"
+            cancelText="No"
+            onConfirm={() => handleDelete(record.id)}
+          >
+            <a href="#">Delete</a>
           </Popconfirm>
         </Space>
       ),
@@ -132,7 +137,7 @@ export default function Students() {
             margin: "20px 10px ",
           }}
         >
-          <AddEditStudent/>
+          <AddEditStudent />
 
           {/* filter by student name */}
           <Search
