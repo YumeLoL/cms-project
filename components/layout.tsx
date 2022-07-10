@@ -79,7 +79,7 @@ export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
   // menu items
   const items = [
     getItem(
-      <Link href="/dashboard/manager">Overview</Link>,
+      <Link href="/dashboard/manager">xxxxx</Link>,
       "manager",
       <DashboardOutlined />
     ),

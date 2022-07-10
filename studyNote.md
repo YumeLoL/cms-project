@@ -15,3 +15,16 @@
 ?? subMenu展开列表问题
 
 axios interpreter拦截器
+
+
+***questions need to be figued out***
+export interface AddEditStudents {
+    id?: number;
+    name: string;
+    country: string;
+    email: string;
+    type?: number;
+    refresh?: boolean;
+    setRefresh: Dispatch<SetStateAction<boolean>>; // 
+} // source comes addEditStudents.jsx
+在interface里怎么定义函数类型？

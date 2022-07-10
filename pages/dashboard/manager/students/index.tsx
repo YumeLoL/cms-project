@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { SetStateAction, useEffect, useState } from "react";
 import Layout from "../../../../components/layout";
-import { Button, Input, message, Popconfirm, Space, Table } from "antd";
+import { Input, message, Popconfirm, Space, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 import axios, { AxiosResponse } from "axios";
 import { BaseURL } from "../../../../service/api";
 import { Courses } from "../../../../lib/course";
 import { formatDistanceToNow } from "date-fns";
 import AddEditStudent from "../../../../components/addEditStudent";
+import { AddEditStudents } from "../../../../lib/students";
 
 const { Search } = Input;
 
@@ -67,6 +68,7 @@ export default function Students() {
       );
 
       setRefresh(!refresh);
+    
       setLoading(false);
     } catch (err: any) {
       message.error(err.response.data.msg);
@@ -111,19 +113,22 @@ export default function Students() {
     {
       title: "Action",
       key: "action",
-      render: (record, _, _1) => (
-        <Space size="middle">
-          <a>xxx</a>
+      render: (_, record, _1) => {       
+        const {id, name, email, country} = record as AddEditStudents;
+        const data = {id, name, email, country} 
+        return <Space size="middle">
+          <AddEditStudent refresh={refresh} setRefresh={setRefresh} {...data} />
+
           <Popconfirm
             title="Are you sure？"
             okText="Yes"
             cancelText="No"
-            onConfirm={() => handleDelete(record.id)}
+            onConfirm={() => handleDelete(id as number)}
           >
             <a href="#">Delete</a>
           </Popconfirm>
         </Space>
-      ),
+      }
     },
   ];
 
@@ -137,7 +142,10 @@ export default function Students() {
             margin: "20px 10px ",
           }}
         >
-          <AddEditStudent />
+          <AddEditStudent name={""} country={""} email={""} 
+          setRefresh={function (value: SetStateAction<boolean>): void {
+            throw new Error("Function not implemented.");
+          } }  /> 
 
           {/* filter by student name */}
           <Search
