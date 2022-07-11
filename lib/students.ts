@@ -10,3 +10,12 @@ export interface AddEditStudents {
     setRefresh: Dispatch<SetStateAction<boolean>>; // 
 }
 
+export interface IStudent {
+    id: number;
+    name: string;
+    age: number;
+    email: string;
+    phone: number;
+    address: string;
+
+}

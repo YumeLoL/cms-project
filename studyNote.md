@@ -16,6 +16,9 @@
 * axios instance - create an instance of axios with a custom config
 * add a request interceptor
 
+# Next.js route
+
+
 
 ***questions need to be figued out***
 export interface AddEditStudents {
@@ -31,7 +34,6 @@ export interface AddEditStudents {
 
 ?? subMenu展开列表问题
 
-axios interpreter拦截器
 
 
 ***learning material ***

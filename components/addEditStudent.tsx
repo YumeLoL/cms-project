@@ -1,8 +1,7 @@
 import { Button, Form, Input, message, Modal, Select } from "antd";
-import axios, { AxiosResponse } from "axios";
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import { AddEditStudents } from "../lib/students";
-import { BaseURL } from "../httpService/api";
+import { axiosInstance, BaseURL } from "../httpService/api";
 
 const { Option } = Select;
 
@@ -20,17 +19,14 @@ export default function AddEditStudent(data: AddEditStudents) {
 
   const onFinish = async (values: AddEditStudents) => {
     const { name, email, country, type} = values;
-    const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
 
       // to edit a student
       if(id){
         try {
-          const res = await axios.put(
+          const res = await axiosInstance.put(
             `${BaseURL}/students`,
             { id,  name, email, country, type},
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
+            
           );
           if (res) {
             setVisible(false);
@@ -41,13 +37,11 @@ export default function AddEditStudent(data: AddEditStudents) {
           message.error(err.response.data.msg);
         }
       }else{
+        // to add a new student
         try {
-          const res = await axios.post(
+          const res = await axiosInstance.post(
             `${BaseURL}/students`,
             { name, email, country, type},
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
           );
           if (res) {
             console.log("add:", res)

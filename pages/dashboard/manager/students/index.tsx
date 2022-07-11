@@ -7,7 +7,8 @@ import { axiosInstance, BaseURL } from "../../../../httpService/api";
 import { Courses } from "../../../../lib/course";
 import { formatDistanceToNow } from "date-fns";
 import AddEditStudent from "../../../../components/addEditStudent";
-import { AddEditStudents } from "../../../../lib/students";
+import { AddEditStudents, IStudent } from "../../../../lib/students";
+import Link from "next/link";
 
 const { Search } = Input;
 
@@ -72,7 +73,18 @@ export default function Students() {
       dataIndex: "key",
       render: (_, _1, index) => index + 1,
     },
-    { title: "Name", dataIndex: "name" },
+    {
+      title: "Name",
+      dataIndex: "name",
+      render: (name, record, _1) => {  
+        const {id} = record as IStudent;   
+        return (
+          <Link href={`/dashboard/manager/students/${id}`}>
+            <a>{name}</a>
+          </Link>
+        );
+      },
+    },
     {
       title: "Area",
       dataIndex: "country",

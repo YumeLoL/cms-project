@@ -1,6 +1,5 @@
 import Head from "next/head";
 import router from "next/router";
-import axios from "axios";
 import { AES } from "crypto-js";
 import "antd/dist/antd.css";
 import {
