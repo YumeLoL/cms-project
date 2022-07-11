@@ -2,13 +2,12 @@ import { Button, Form, Input, message, Modal, Select } from "antd";
 import axios, { AxiosResponse } from "axios";
 import React, { useEffect, useState } from "react";
 import { AddEditStudents } from "../lib/students";
-import { BaseURL } from "../service/api";
+import { BaseURL } from "../httpService/api";
 
 const { Option } = Select;
 
 export default function AddEditStudent(data: AddEditStudents) {
   const { id, name, email, country, refresh, setRefresh } = data;
-  // console.log("data:",data, id)
   const [form] = Form.useForm();
   const [visible, setVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -21,28 +20,48 @@ export default function AddEditStudent(data: AddEditStudents) {
 
   const onFinish = async (values: AddEditStudents) => {
     const { name, email, country, type} = values;
-    // console.log("check value:", values, id)
     const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
 
       // to edit a student
-      try {
-        const res = await axios.put(
-          `${BaseURL}/students`,
-          { id,  name, email, country, type},
-          {
-            headers: { Authorization: `Bearer ${token}` },
+      if(id){
+        try {
+          const res = await axios.put(
+            `${BaseURL}/students`,
+            { id,  name, email, country, type},
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          if (res) {
+            setVisible(false);
+            message.success(res.data.msg);
+            setRefresh(!refresh)
           }
-        );
-        if (res) {
-          
-          setVisible(false);
-          setRefresh(true)
-          console.log("refresh:", refresh);
-          message.success(res.data.msg);
+        } catch (err: any) {
+          message.error(err.response.data.msg);
         }
-      } catch (err: any) {
-        message.error(err.response.data.msg);
+      }else{
+        try {
+          const res = await axios.post(
+            `${BaseURL}/students`,
+            { name, email, country, type},
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          if (res) {
+            console.log("add:", res)
+            setVisible(false);
+            message.success(res.data.msg);
+            setRefresh(!refresh)
+          }
+        } 
+        catch (err: any) {
+          // console.log("err", err)
+          // message.error("there is error");
+        }
       }
+      
   };
 
   return (
@@ -59,7 +78,6 @@ export default function AddEditStudent(data: AddEditStudents) {
           form
             .validateFields()
             .then((values) => {
-                // console.log("form value:", values);
               form.resetFields();
               onFinish(values);
             })

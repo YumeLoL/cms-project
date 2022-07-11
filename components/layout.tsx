@@ -23,7 +23,7 @@ import logo from "../public/logo.png";
 import styled from "styled-components";
 import axios, { AxiosResponse } from "axios";
 import { useRouter } from "next/router";
-import { BaseURL } from "../service/api";
+import { axiosInstance, BaseURL } from "../httpService/api";
 
 const { Header, Sider, Content } = Layout;
 
@@ -79,7 +79,7 @@ export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
   // menu items
   const items = [
     getItem(
-      <Link href="/dashboard/manager">xxxxx</Link>,
+      <Link href="/dashboard/manager">Overview</Link>,
       "manager",
       <DashboardOutlined />
     ),
@@ -137,14 +137,10 @@ export default function MainLayout({ children }: React.PropsWithChildren<{}>) {
 
 
   const logout = async () => {
-    const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
     try {
-      const res: AxiosResponse = await axios.post(
+      const res: AxiosResponse = await axiosInstance.post(
         `${BaseURL}/logout`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
       if (res) {
         localStorage.removeItem("cms-user");

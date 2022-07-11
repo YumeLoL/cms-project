@@ -2,8 +2,8 @@ import React, { SetStateAction, useEffect, useState } from "react";
 import Layout from "../../../../components/layout";
 import { Input, message, Popconfirm, Space, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
-import axios, { AxiosResponse } from "axios";
-import { BaseURL } from "../../../../service/api";
+import { AxiosResponse } from "axios";
+import { axiosInstance, BaseURL } from "../../../../httpService/api";
 import { Courses } from "../../../../lib/course";
 import { formatDistanceToNow } from "date-fns";
 import AddEditStudent from "../../../../components/addEditStudent";
@@ -30,7 +30,6 @@ export default function Students() {
   // to get student data
   const getStudents = async () => {
     setLoading(true);
-    const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
 
     let path = `page=${paginator.page}&limit=${paginator.pageSize}`;
     if (value) {
@@ -38,11 +37,8 @@ export default function Students() {
     }
 
     try {
-      const res: AxiosResponse = await axios.get(
-        `${BaseURL}/students?query=${value}&page=${paginator.page}&limit=${paginator.pageSize}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const res: AxiosResponse = await axiosInstance.get(
+        `${BaseURL}/students?query=${value}&page=${paginator.page}&limit=${paginator.pageSize}`
       );
       if (res) {
         setStudents(res.data.data.students);
@@ -57,18 +53,13 @@ export default function Students() {
   // to delete a student data
   const handleDelete = async (id: number) => {
     setLoading(true);
-    const token = JSON.parse(localStorage.getItem("cms-user") as string).token;
 
     try {
-      const res: AxiosResponse = await axios.delete(
-        `${BaseURL}/students/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const res: AxiosResponse = await axiosInstance.delete(
+        `${BaseURL}/students/${id}`
       );
 
       setRefresh(!refresh);
-    
       setLoading(false);
     } catch (err: any) {
       message.error(err.response.data.msg);
@@ -113,22 +104,28 @@ export default function Students() {
     {
       title: "Action",
       key: "action",
-      render: (_, record, _1) => {       
-        const {id, name, email, country} = record as AddEditStudents;
-        const data = {id, name, email, country} 
-        return <Space size="middle">
-          <AddEditStudent refresh={refresh} setRefresh={setRefresh} {...data} />
+      render: (_, record, _1) => {
+        const { id, name, email, country } = record as AddEditStudents;
+        const data = { id, name, email, country };
+        return (
+          <Space size="middle">
+            <AddEditStudent
+              refresh={refresh}
+              setRefresh={setRefresh}
+              {...data}
+            />
 
-          <Popconfirm
-            title="Are you sure？"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() => handleDelete(id as number)}
-          >
-            <a href="#">Delete</a>
-          </Popconfirm>
-        </Space>
-      }
+            <Popconfirm
+              title="Are you sure？"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => handleDelete(id as number)}
+            >
+              <a href="#">Delete</a>
+            </Popconfirm>
+          </Space>
+        );
+      },
     },
   ];
 
@@ -142,10 +139,14 @@ export default function Students() {
             margin: "20px 10px ",
           }}
         >
-          <AddEditStudent name={""} country={""} email={""} 
-          setRefresh={function (value: SetStateAction<boolean>): void {
-            throw new Error("Function not implemented.");
-          } }  /> 
+          <AddEditStudent
+            name={""}
+            country={""}
+            email={""}
+            setRefresh={function (value: SetStateAction<boolean>): void {
+              throw new Error("Function not implemented.");
+            }}
+          />
 
           {/* filter by student name */}
           <Search

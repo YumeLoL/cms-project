@@ -12,9 +12,9 @@
 * logout request (headers带有token)
 * 请求成功后，remove token & router.push登录页面
 
-?? subMenu展开列表问题
-
-axios interpreter拦截器
+# Axios
+* axios instance - create an instance of axios with a custom config
+* add a request interceptor
 
 
 ***questions need to be figued out***
@@ -28,3 +28,12 @@ export interface AddEditStudents {
     setRefresh: Dispatch<SetStateAction<boolean>>; // 
 } // source comes addEditStudents.jsx
 在interface里怎么定义函数类型？
+
+?? subMenu展开列表问题
+
+axios interpreter拦截器
+
+
+***learning material ***
+TypeScript: 
+https://www.youtube.com/watch?v=ixCxoFAoOps&list=PLNqp92_EXZBJYFrpEzdO2EapvU0GOJ09n&index=4

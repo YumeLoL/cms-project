@@ -17,7 +17,7 @@ import {
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { LoginValue } from "../lib/login";
 import Link from "next/link";
-import { BaseURL } from "../service/api";
+import { axiosInstance, BaseURL } from "../httpService/api";
 
 const { Title } = Typography;
 
@@ -25,7 +25,7 @@ const Login: React.FC = () => {
   const onFinish = async ({ password, role, email }: LoginValue) => {
     // login request
     try {
-      const res = await axios.post(`${BaseURL}/login`, {
+      const res = await axiosInstance.post(`${BaseURL}/login`, {
         password: AES.encrypt(password, "cms").toString(),
         email,
         role,
