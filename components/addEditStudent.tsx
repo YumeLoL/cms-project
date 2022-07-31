@@ -60,13 +60,13 @@ export default function AddEditStudent(data: AddEditStudents) {
 
   return (
     <>
-      <Button type={!!name ? "link" : "primary"} onClick={showModal}>
-        {!!name ? "Edit" : "+ Add"}
+      <Button type={!!id ? "link" : "primary"} onClick={showModal}>
+        {!!id ? "Edit" : "+ Add"}
       </Button>
       <Modal
-        title={!!name ? "Edit Student" : "Add Student"}
+        title={!!id ? "Edit Student" : "Add Student"}
         centered
-        okText={!!name ? "Update" : "Add"}
+        okText={!!id ? "Update" : "Add"}
         visible={visible}
         onOk={() => {
           form

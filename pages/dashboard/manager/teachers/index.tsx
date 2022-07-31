@@ -1,10 +1,14 @@
-import { message, Table } from "antd";
+import { Input, message, Popconfirm, Space, Table } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
 import { AxiosResponse } from "axios";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import AddEditTeacher from "../../../../components/addEditTeacher";
 import Layout from "../../../../components/layout";
 import { axiosInstance, BaseURL } from "../../../../httpService/api";
+import { ITeachers } from "../../../../lib/teachers";
+
+const { Search } = Input;
 
 export default function Teacher() {
   const [loading, setLoading] = useState(true);
@@ -13,13 +17,14 @@ export default function Teacher() {
     page: 1,
     pageSize: 10,
   });
+  const [total, setTotal] = useState(0);
   const [value, setValue] = useState("");
-
+  const [refresh, setRefresh] = useState(true);
 
   useEffect(() => {
     getTeachers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [paginator.page, paginator.pageSize,refresh]);
 
   const getTeachers = async () => {
     setLoading(true);
@@ -34,8 +39,8 @@ export default function Teacher() {
         `${BaseURL}/teachers?query=${value}&page=${paginator.page}&limit=${paginator.pageSize}`
       );
       if (res) {
-        
         setTeachers(res.data.data.teachers);
+        setTotal(res.data.data.total);
         setLoading(false);
       }
     } catch (err: any) {
@@ -43,7 +48,21 @@ export default function Teacher() {
     }
   };
 
-  console.log(teachers)
+  const handleDelete = async (id: number) => {
+    setLoading(true);
+
+    try {
+      const res: AxiosResponse = await axiosInstance.delete(
+        `${BaseURL}/teachers/${id}`
+      );
+
+      setRefresh(!refresh);
+      setLoading(false);
+    } catch (err: any) {
+      message.error(err.response.data.msg);
+    }
+  }
+
   const columns: ColumnsType = [
     {
       title: "No.",
@@ -54,7 +73,8 @@ export default function Teacher() {
       title: "Name",
       dataIndex: "name",
       render: (name, record, _1) => {
-        const { id } = record;
+        const { id } = record as ITeachers;
+
         return (
           <Link href={`/dashboard/manager/teachers/${id}`}>
             <a>{name}</a>
@@ -72,11 +92,19 @@ export default function Teacher() {
     },
     {
       title: "Skill",
-      dataIndex: "skill",
+      dataIndex: "skills",
+      render: (skills, _, _1) =>
+        skills.map(({ name }: ITeachers, index: number) => {
+          return index === 0 ? (
+            <span key={name}>{name}</span>
+          ) : (
+            <span key={name}>, {name}</span>
+          );
+        }),
     },
     {
       title: "Course Amount",
-      dataIndex: "type",
+      dataIndex: "courseAmount",
     },
     {
       title: "Phone",
@@ -85,28 +113,24 @@ export default function Teacher() {
     {
       title: "Action",
       key: "action",
-      // render: (_, record, _1) => {
-      //   const { id, name, email, country } = record as AddEditStudents;
-      //   const data = { id, name, email, country };
-      //   return (
-      //     <Space size="middle">
-      //       <AddEditStudent
-      //         refresh={refresh}
-      //         setRefresh={setRefresh}
-      //         {...data}
-      //       />
-
-      //       <Popconfirm
-      //         title="Are you sure？"
-      //         okText="Yes"
-      //         cancelText="No"
-      //         onConfirm={() => handleDelete(id as number)}
-      //       >
-      //         <a href="#">Delete</a>
-      //       </Popconfirm>
-      //     </Space>
-      //   );
-      // },
+      render: (record, _, _1) => {
+        const {id} = record;
+        console.log(id)
+        return (
+          <Space>
+            {/* <AddEditTeacher/> */}
+          
+          <Popconfirm
+            title="Are you sure?"
+            onConfirm={()=> handleDelete(id as number)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <a href="#">Delete</a>
+          </Popconfirm>
+          </Space>
+        );
+      },
     },
   ];
   return (
@@ -118,8 +142,25 @@ export default function Teacher() {
           margin: "20px 10px ",
         }}
       >
-        <Table<any> columns={columns} loading={loading} dataSource={teachers} />
+        <AddEditTeacher />
+
+        {/* filter by student name */}
+        <Search
+            placeholder="input search text"
+            size="middle"
+            style={{ width: "30%" }}
+            onChange={(e) => setValue(e.target.value)}
+          />
       </div>
+      <Table<any> columns={columns} loading={loading} dataSource={teachers} pagination={{
+            total: total,
+            pageSize: paginator.pageSize,
+            onChange: (page, pageSize) => {
+              setPaginator({ page, pageSize });
+            },
+          }}/>
     </Layout>
   );
 }
+
+

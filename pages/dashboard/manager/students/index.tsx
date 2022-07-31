@@ -76,8 +76,8 @@ export default function Students() {
     {
       title: "Name",
       dataIndex: "name",
-      render: (name, record, _1) => {  
-        const {id} = record as IStudent;   
+      render: (name, record, _1) => {
+        const { id } = record as IStudent;
         return (
           <Link href={`/dashboard/manager/students/${id}`}>
             <a>{name}</a>
@@ -97,8 +97,8 @@ export default function Students() {
       title: "Selected Curriculum",
       dataIndex: "courses",
       render: (courses, _, _1) =>
-        courses.map(({ courseId, name }: Courses) => {
-          return <span key={courseId}>{name}, </span>;
+        courses.map(({ courseId, name }: Courses, index:number) => {
+          return index === 0 ? <span key={courseId}>{name}</span>: <span key={courseId}>, {name}</span>
         }),
     },
     {
