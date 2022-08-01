@@ -1,5 +1,16 @@
-import { Button, Form, Input, Modal, Select } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Slider,
+  Space,
+} from "antd";
 import { useState } from "react";
+import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -13,7 +24,9 @@ export default function AddEditTeacher() {
     setVisible(true);
   };
 
-  const onFinish = async () => {};
+  const onFinish = (values: any) => {
+    console.log(values);
+  };
 
   return (
     <>
@@ -95,8 +108,11 @@ export default function AddEditTeacher() {
           >
             <Input
               addonBefore={
-                <Form.Item name="prefix" noStyle>
-                  <Select style={{ width: 70 }} defaultValue={{ value: '61', label: '+61' }}>
+                <Form.Item name="countryCode" noStyle>
+                  <Select
+                    style={{ width: 70 }}
+                    defaultValue={{ value: "61", label: "+61" }}
+                  >
                     <Option value="61">+61</Option>
                     <Option value="87">+87</Option>
                   </Select>
@@ -105,6 +121,75 @@ export default function AddEditTeacher() {
               style={{ width: "100%" }}
             />
           </Form.Item>
+
+          <Form.List name="skills">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map(({ key, name, ...restField }) => (
+                  <Row key={key}>
+                    <Col span={8}>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "name"]}
+                        style={{ width: "130%" }}
+                      >
+                        <Input />
+                      </Form.Item>
+                    </Col>
+                    <Col span={15}>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "level"]}
+                        style={{ width: "140%" }}
+                      >
+                        <Slider
+                          min={1}
+                          max={5}
+                          tipFormatter={(value) => {
+                            let level;
+                            switch (value) {
+                              case 1:
+                                level = <span>basic</span>;
+                                break;
+                              case 2:
+                                level = <span>practiced</span>;
+                                break;
+                              case 3:
+                                level = <span>comprehend</span>;
+                                break;
+                              case 4:
+                                level = <span>expert</span>;
+                                break;
+                              case 5:
+                                level = <span>master</span>;
+                                break;
+                            }
+                            return level;
+                          }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={1}>
+                      <MinusCircleOutlined
+                        onClick={() => remove(name)}
+                        style={{ width: "150%" }}
+                      />
+                    </Col>
+                  </Row>
+                ))}
+                <Form.Item>
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                  >
+                    Add field
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
         </Form>
       </Modal>
     </>

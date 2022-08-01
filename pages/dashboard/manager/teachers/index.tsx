@@ -95,6 +95,7 @@ export default function Teacher() {
       dataIndex: "skills",
       render: (skills, _, _1) =>
         skills.map(({ name }: ITeachers, index: number) => {
+          console.log(skills)
           return index === 0 ? (
             <span key={name}>{name}</span>
           ) : (
