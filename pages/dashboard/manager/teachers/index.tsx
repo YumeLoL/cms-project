@@ -2,11 +2,11 @@ import { Input, message, Popconfirm, Space, Table } from "antd";
 import { ColumnsType } from "antd/lib/table/interface";
 import { AxiosResponse } from "axios";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { SetStateAction, useEffect, useState } from "react";
 import AddEditTeacher from "../../../../components/addEditTeacher";
 import Layout from "../../../../components/layout";
 import { axiosInstance, BaseURL } from "../../../../httpService/api";
-import { ITeachers } from "../../../../lib/teachers";
+import { AddEditTeachers, ITeachers } from "../../../../lib/teachers";
 
 const { Search } = Input;
 
@@ -116,11 +116,15 @@ export default function Teacher() {
       title: "Action",
       key: "action",
       render: (record, _, _1) => {
-        const {id} = record;
-        console.log(id)
-        return (
-          <Space>
-            <AddEditTeacher/>
+        const {id, name, email, country, phone, skills} = record as AddEditTeachers;
+        const data = {id, name, email, country, phone, skills}
+       
+             return (
+          <Space size="middle">
+            <AddEditTeacher 
+            refresh={refresh}
+              setRefresh={setRefresh}
+              {...data}/>
           
           <Popconfirm
             title="Are you sure?"
@@ -144,7 +148,9 @@ export default function Teacher() {
           margin: "20px 10px ",
         }}
       >
-        <AddEditTeacher />
+        <AddEditTeacher  name={""} email={""} country={""} phone={0} skills={[]} setRefresh={function (value: SetStateAction<boolean>): void {
+          throw new Error("Function not implemented.");
+        } } id={0} />
 
         {/* filter by student name */}
         <Search

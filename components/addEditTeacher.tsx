@@ -3,6 +3,7 @@ import {
   Col,
   Form,
   Input,
+  message,
   Modal,
   Row,
   Select,
@@ -11,11 +12,13 @@ import {
 } from "antd";
 import { useState } from "react";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import { axiosInstance, BaseURL } from "../httpService/api";
+import { AddEditTeachers } from "../lib/teachers";
 
 const { Option } = Select;
 
-export default function AddEditTeacher() {
-  //   const { id, name, email, country, phone } = data;
+export default function AddEditTeacher(data: AddEditTeachers) {
+  const {id, name, email, country, phone, skills, refresh, setRefresh } = data;
   const [form] = Form.useForm();
   const [visible, setVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -24,19 +27,57 @@ export default function AddEditTeacher() {
     setVisible(true);
   };
 
-  const onFinish = (values: any) => {
-    console.log(values);
+  const onFinish = async (values: AddEditTeachers) => {
+    const { name, email, country, phone, skills } = values;
+
+    // to edit a teacher
+    if(id){
+      try {
+        const res = await axiosInstance.put(
+          `${BaseURL}/teachers`,
+          { id,  name, email, country, phone, skills},
+          
+        );
+        if (res) {
+          setVisible(false);
+          message.success(res.data.msg);
+          setRefresh(!refresh)
+        }
+      } catch (err: any) {
+        message.error(err.response.data.msg);
+      }
+    }else{
+    // to add a new teacher
+    try {
+      const res = await axiosInstance.post(`${BaseURL}/teachers`, {
+        name,
+        country,
+        phone,
+        skills,
+        email,
+      });
+      if (res) {
+        console.log("add:", res);
+        setVisible(false);
+        message.success(res.data.msg);
+        setRefresh(!refresh);
+      }
+    } catch (err: any) {
+      // console.log("err", err)
+      // message.error("there is error");
+    }
+  }
   };
 
   return (
     <>
-      <Button type={"primary"} onClick={showModal}>
-        {"+ Add"}
+      <Button type={!!name ? "link" : "primary"} onClick={showModal}>
+      {!!name ? "Edit" : "+ Add"}
       </Button>
       <Modal
-        title={"Add Student"}
+        title={!!name ? "Edit Student" : "Add Student"}
         centered
-        okText={"Add"}
+        okText={!!name ? "Update" : "Add"}
         visible={visible}
         onOk={() => {
           form
@@ -57,11 +98,13 @@ export default function AddEditTeacher() {
           name="basic"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
-          //   initialValues={{
-          //     name: name,
-          //     email: email,
-          //     country: country,
-          //   }}
+            initialValues={{
+              name: name,
+              email: email,
+              country: country,
+              phone: phone,
+              skills: skills,
+            }}
           autoComplete="off"
         >
           <Form.Item
