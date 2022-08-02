@@ -108,7 +108,7 @@ export default function AddEditTeacher() {
           >
             <Input
               addonBefore={
-                <Form.Item name="countryCode" noStyle>
+                <Form.Item noStyle>
                   <Select
                     style={{ width: 70 }}
                     defaultValue={{ value: "61", label: "+61" }}
@@ -122,16 +122,23 @@ export default function AddEditTeacher() {
             />
           </Form.Item>
 
-          <Form.List name="skills">
+          <Form.List name="skills" initialValue={[]}>
             {(fields, { add, remove }) => (
               <>
-                {fields.map(({ key, name, ...restField }) => (
+                <p>Skills:</p>
+                {fields.map(({ key, name, ...restField }, index) => (
                   <Row key={key}>
                     <Col span={8}>
                       <Form.Item
                         {...restField}
                         name={[name, "name"]}
                         style={{ width: "130%" }}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please input teacher skills!",
+                          },
+                        ]}
                       >
                         <Input />
                       </Form.Item>
@@ -169,12 +176,17 @@ export default function AddEditTeacher() {
                         />
                       </Form.Item>
                     </Col>
-                    <Col span={1}>
-                      <MinusCircleOutlined
-                        onClick={() => remove(name)}
-                        style={{ width: "150%" }}
-                      />
-                    </Col>
+                    {/* ensure first line of skills form without Delete function */}
+                    {index === 0 ? (
+                      <p></p>
+                    ) : (
+                      <Col span={1}>
+                        <MinusCircleOutlined
+                          onClick={() => remove(name)}
+                          style={{ width: "150%" }}
+                        />
+                      </Col>
+                    )}
                   </Row>
                 ))}
                 <Form.Item>
@@ -183,6 +195,7 @@ export default function AddEditTeacher() {
                     onClick={() => add()}
                     block
                     icon={<PlusOutlined />}
+                    style={{ width: "150%" }}
                   >
                     Add field
                   </Button>

@@ -40,6 +40,7 @@ export default function Teacher() {
       );
       if (res) {
         setTeachers(res.data.data.teachers);
+        console.log(res.data.data.teachers)
         setTotal(res.data.data.total);
         setLoading(false);
       }
@@ -95,7 +96,7 @@ export default function Teacher() {
       dataIndex: "skills",
       render: (skills, _, _1) =>
         skills.map(({ name }: ITeachers, index: number) => {
-          console.log(skills)
+         
           return index === 0 ? (
             <span key={name}>{name}</span>
           ) : (
@@ -119,7 +120,7 @@ export default function Teacher() {
         console.log(id)
         return (
           <Space>
-            {/* <AddEditTeacher/> */}
+            <AddEditTeacher/>
           
           <Popconfirm
             title="Are you sure?"
