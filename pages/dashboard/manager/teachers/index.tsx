@@ -22,32 +22,33 @@ export default function Teacher() {
   const [refresh, setRefresh] = useState(true);
 
   useEffect(() => {
+    const getTeachers = async () => {
+      setLoading(true);
+  
+      let path = `page=${paginator.page}&limit=${paginator.pageSize}`;
+      if (value) {
+        path = `query=${value}&page=${paginator.page}&limit=${paginator.pageSize}`;
+      }
+  
+      try {
+        const res: AxiosResponse = await axiosInstance.get(
+          `${BaseURL}/teachers?query=${value}&page=${paginator.page}&limit=${paginator.pageSize}`
+        );
+        if (res) {
+          setTeachers(res.data.data.teachers);
+          console.log(res.data.data.teachers)
+          setTotal(res.data.data.total);
+          setLoading(false);
+        }
+      } catch (err: any) {
+        message.error(err.response.data.msg);
+      }
+    };
     getTeachers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paginator.page, paginator.pageSize,refresh]);
 
-  const getTeachers = async () => {
-    setLoading(true);
-
-    let path = `page=${paginator.page}&limit=${paginator.pageSize}`;
-    if (value) {
-      path = `query=${value}&page=${paginator.page}&limit=${paginator.pageSize}`;
-    }
-
-    try {
-      const res: AxiosResponse = await axiosInstance.get(
-        `${BaseURL}/teachers?query=${value}&page=${paginator.page}&limit=${paginator.pageSize}`
-      );
-      if (res) {
-        setTeachers(res.data.data.teachers);
-        console.log(res.data.data.teachers)
-        setTotal(res.data.data.total);
-        setLoading(false);
-      }
-    } catch (err: any) {
-      message.error(err.response.data.msg);
-    }
-  };
+  
 
   const handleDelete = async (id: number) => {
     setLoading(true);
